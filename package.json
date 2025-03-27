@@ -1,0 +1,25 @@
+{
+  "name": "comp2406-final-project",
+  "version": "1.0.0",
+  "description": "Lets users sign in and post comments on osu! players' profiles",
+  "homepage": "https://github.com/SaynaHana/comp2406-final-project#readme",
+  "bugs": {
+    "url": "https://github.com/SaynaHana/comp2406-final-project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SaynaHana/comp2406-final-project.git"
+  },
+  "license": "ISC",
+  "author": "Aria Wong",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "hbs": "^4.2.0",
+    "serve-favicon": "^2.5.0"
+  }
+}
