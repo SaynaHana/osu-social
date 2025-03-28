@@ -1,6 +1,7 @@
 var http = require("http");
 var express = require("express");
 var path = require("path");
+var logger = require("morgan");
 
 var app = express();
 
@@ -13,10 +14,27 @@ app.set("view engine", "hbs");
 app.locals.pretty = true;
 
 // Read route modules
-var routes = require("./routes/index.js");
+var routes = require("./routes/index");
 
-app.use(routes.login);
-app.get("/", routes.login);
+function methodLogger(request, response, next){
+    console.log("METHOD LOGGER");
+    console.log("================================");
+    console.log("METHOD: " + request.method);
+    console.log("URL:" + request.url);
+    next(); //call next middleware registered
+}
+function headerLogger(request, response, next){
+    console.log("HEADER LOGGER:")
+    console.log("Headers:")
+    for(k in request.headers) console.log(k);
+    next(); //call next middleware registered
+}
+
+app.use(logger("dev"));
+
+// Routes
+app.get(["/", "/login"], routes.login);
+app.get("/register", routes.register);
 
 app.listen(PORT, err => {
     if(err) console.log(err)
