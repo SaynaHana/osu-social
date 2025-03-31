@@ -9,6 +9,9 @@ const PORT = process.env.PORT || 3000
 
 // View engine setup
 app.use(express.static(path.join(__dirname, "public")));
+
+// Express url encoded from: https://www.geeksforgeeks.org/express-js-express-urlencoded-function/
+app.use(express.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
@@ -34,8 +37,9 @@ function headerLogger(request, response, next){
 app.use(logger("dev"));
 
 // Routes
-app.get(["/", "/login"], routes.login);
-app.get("/register", routes.register);
+app.get(["/", "/loginPage"], routes.loginPage);
+app.get("/registerPage", routes.registerPage);
+app.post("/register", routes.register);
 
 app.listen(PORT, err => {
     if(err) console.log(err)
