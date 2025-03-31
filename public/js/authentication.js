@@ -12,7 +12,7 @@ function authenticate(username, password, mode) {
         xhr.open("POST", "/register");
     }
     else {
-        xhr.open("POST", "/login");
+        xhr.open("POST", "/authorization");
     }
 
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -23,6 +23,9 @@ function authenticate(username, password, mode) {
         }
         else if(xhr.status == 409) {
             return alert("User already exists. Please try a different username.");
+        }
+        else if(xhr.status == 401) {
+            return alert("User does not exist, or username or password is incorrect.");
         }
     }
 

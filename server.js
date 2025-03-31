@@ -41,6 +41,7 @@ app.get(["/", "/loginPage"], routes.loginPage);
 app.get("/registerPage", routes.registerPage);
 app.post("/register", routes.register);
 app.get("/dashboardPage", routes.dashboardPage);
+app.post("/authorization", routes.authorization);
 
 app.listen(PORT, err => {
     if(err) console.log(err)

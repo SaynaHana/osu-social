@@ -6,14 +6,17 @@
     <body>
         <div class="container">
             <label for="username">Username</label>
-            <input type="text" placeholder="Enter username" name="username" required>
+            <input id="username-input" type="text" placeholder="Enter username" name="username" required>
 
             <label for="password">Password</label>
-            <input type="text" placeholder="Enter password" name="password" required>
+            <input id="password-input" type="password" placeholder="Enter password" name="password" required>
 
-            <button type="submit-login">Login</button>
+            <button id="submit-login">Login</button>
 
             <p>Don't have an account? <a href="../registerPage">Register</a></p>
         </div>
+
+        <script src="js/login.js"></script>
+        <script src="js/authentication.js"></script>
     </body>
 </html>
