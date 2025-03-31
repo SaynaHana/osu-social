@@ -1,7 +1,4 @@
-function register() {
-    let username = document.getElementById("username-input").value;
-    let password = document.getElementById("password-input").value;
-
+function authenticate(username, password, mode) {
     if(username == "" || password == "") {
         return alert("Please enter a valid username and password.");
     }
@@ -11,19 +8,35 @@ function register() {
     let xhr = new XMLHttpRequest();
     let params = `username=${username}&password=${password}`;
 
-    xhr.open("POST", "/register");
+    if(mode === "register") {
+        xhr.open("POST", "/register");
+    }
+    else {
+        xhr.open("POST", "/login");
+    }
 
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onreadystatechange = () => {
         if(xhr.readyState == 4 && xhr.status == 200) {
-
+            window.location.href = "../dashboardPage";
+        }
+        else if(xhr.status == 409) {
+            return alert("User already exists. Please try a different username.");
         }
     }
 
     xhr.send(params);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("submit-register").addEventListener("click", register);
-});
+function redirectToDashboard() {
+    let xhr = new XMLHttpRequest(); 
+
+    xhr.open("GET", "/dashboardPage");
+
+    xhr.onreadystatechange = () => {
+
+    }
+
+    xhr.send();
+}

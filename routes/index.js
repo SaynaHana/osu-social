@@ -36,6 +36,8 @@ exports.register = function(request, response) {
             response.end();
         }
     });
+}
 
-
+exports.dashboardPage = function(request, response) {
+    response.render("dashboard", {}); 
 }
