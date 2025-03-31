@@ -1,3 +1,7 @@
+var url = require("url");
+var sqlite3 = require("sqlite3").verbose();
+var db = new sqlite3.Database("data/db_projectData");
+
 exports.loginPage = function(request, response) {
     // login.hbs
     response.render("login", {});
@@ -9,5 +13,29 @@ exports.registerPage = function(request, response) {
 }
 
 exports.register = function(request, response) {
-    console.log(request.body);
+    let username = request.body.username;
+    let password = request.body.password;
+
+    let authorized = false;
+
+    // See if user with username exists already
+    db.all(`SELECT userid FROM users WHERE userid='${username}'`, function(err, users) {
+        // Check if user exists
+        if(users.length != 0) {
+            response.setHeader("WWW-Authenticate", "Basic realm='need to log in'");
+            response.writeHead(409, {"Content-Type": "text/html"});
+            console.log("User already exists, send 409.");
+            response.end();
+        }
+        else {
+            authorized = true;
+
+            db.run(`INSERT INTO users VALUES ('${username}', '${password}', 'guest')`);
+            response.writeHead(200, {"Content-Type": "text/html"});
+            console.log("Successfully registered, send 200.");
+            response.end();
+        }
+    });
+
+
 }
