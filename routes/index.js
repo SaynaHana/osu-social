@@ -64,5 +64,9 @@ exports.authorization = function(request, response) {
 }
 
 exports.dashboardPage = function(request, response) {
-    response.render("dashboard", {}); 
+    let osuUsername = request.body.osuUsername;
+
+    response.render("dashboard", { 
+        userGiven: osuUsername != null
+    }); 
 }

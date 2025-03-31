@@ -4,5 +4,9 @@
         <label for="search">Search User:</label>
         <input id="search-input" type="text" placeholder="Enter username..." name="search">
         <button id="submit-search">Submit</button>
+
+        {{#if userGiven}} 
+            <h1>User</h1>
+        {{/if}}
     </body>
 </html>
