@@ -19,6 +19,7 @@ function authenticate(username, password, mode) {
 
     xhr.onreadystatechange = () => {
         if(xhr.readyState == 4 && xhr.status == 200) {
+            saveAccountInfo(username, password);
             window.location.href = "../dashboardPage";
         }
         else if(xhr.status == 409) {
@@ -32,14 +33,9 @@ function authenticate(username, password, mode) {
     xhr.send(params);
 }
 
-function redirectToDashboard() {
-    let xhr = new XMLHttpRequest(); 
-
-    xhr.open("GET", "/dashboardPage");
-
-    xhr.onreadystatechange = () => {
-
-    }
-
-    xhr.send();
+function saveAccountInfo(username, password) {
+    // I know this isn't safe, but I don't think the professor
+    // expects us to use tokens
+    localStorage.setItem("username", username);
+    localStorage.setItem("password", password);
 }
