@@ -30,7 +30,58 @@ function authenticate(username, password, mode) {
         }
     }
 
+    // Try to get osu token if needed
+    checkOsuToken();
+
     xhr.send(params);
+}
+
+function checkOsuToken() {
+    // Gets a public osu token when user's token is expired
+    // Check if current token is expired
+    let tokenData = JSON.parse(localStorage.getItem("osu-token"));
+
+    // Check if token exists
+    if(tokenData != null) {
+        // Check if token is expired
+        let xhr = new XMLHttpRequest()
+
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState == 4 && xhr.status == 200) {
+                let data = JSON.parse(xhr.responseText); 
+
+                if(data.expired === true) {
+                    getOsuToken();
+                }
+                else {
+                    console.log("Token is not expired.");
+                }
+            }
+        }
+
+        xhr.open("GET", `/osuTokenExpired?${tokenData.expiredDate}`);
+        xhr.send();
+    }
+    else {
+        getOsuToken();
+    }
+}
+
+function getOsuToken() {
+    console.log("Token is expired. Getting new one..."); 
+    
+    // Get a token
+    let xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = () => {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            let token = JSON.parse(xhr.responseText);
+            localStorage.setItem("osu-token", JSON.stringify(token));
+        }
+    }
+
+    xhr.open("GET", `/osuToken`);
+    xhr.send();
 }
 
 function saveAccountInfo(username, password) {
