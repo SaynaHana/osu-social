@@ -44,6 +44,7 @@ app.get("/dashboardPage", routes.dashboardPage);
 app.post("/authorization", routes.authorization);
 app.get("/osuToken", routes.osuToken);
 app.get("/osuTokenExpired", routes.osuTokenExpired);
+app.post("/osuUser", routes.osuUser);
 
 app.listen(PORT, err => {
     if(err) console.log(err)

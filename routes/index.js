@@ -58,6 +58,7 @@ exports.authorization = function(request, response) {
         }
 
         if(authorized == false) {
+            response.setHeader("WWW-Authenticate", "Basic realm='need to login'");
             response.writeHead(401, {"Content-Type": "text/html"});
             console.log("Unauthorized, send 401.");
             response.end();
@@ -133,4 +134,33 @@ exports.osuTokenExpired = function(request, response) {
     }
 
     response.contentType("text/json").json({ expired: expired });
+}
+
+exports.osuUser = function(request, response) {
+    let osuUsername = request.body.osuUsername;
+    let token = JSON.parse(request.body.token);
+
+    let options = {
+        host: "osu.ppy.sh",
+        path: "/api/v2/users/" + osuUsername + "/osu?key=username",
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token.access_token}`
+        }
+    };
+
+    let osu_request = https.request(options, function(apiResponse) {
+        let userData = "";
+
+        apiResponse.on("data", function(chunk) {
+            userData += chunk;
+        });
+        apiResponse.on("end", function() {
+            response.contentType("application/json").json(JSON.parse(userData));
+        });
+    });
+
+    osu_request.end();
 }
