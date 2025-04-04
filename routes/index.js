@@ -110,7 +110,10 @@ exports.dashboardPage = function(request, response) {
             response.render("dashboard", {
                 hasUser: true,
                 username: data.username,
-                pp: data.statistics.pp
+                global_rank: data.statistics.global_rank,
+                country_rank: data.statistics.country_rank,
+                pp: data.statistics.pp,
+                profile_pic_src: data.avatar_url
             });
         });
     });

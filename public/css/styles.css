@@ -4,6 +4,22 @@
     width: 20%;
 }
 
-p {
+.top-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0px 5px;
+    gap: 10px;
+}
+
+.profile-pic img {
+    max-width: 130px;
+}
+
+h1 {
+    font-size: 18px;
+}
+
+.container p {
     text-align: center;
 }
