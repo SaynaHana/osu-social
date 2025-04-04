@@ -21,6 +21,11 @@
                         <p>Performance Points: {{pp}}</p>
                     </div>
                 </div>
+                <div class="top-scores">
+                    {{#each top_scores}}
+                        <h2>{{this.beatmapset.title}}</h2>
+                    {{/each}}
+                </div>
             </div>
         {{/if}}
 

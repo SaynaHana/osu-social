@@ -86,6 +86,7 @@ exports.dashboardPage = function(request, response) {
 
     // Otherwise, get osu! user data and then display
 
+    // Get osu! user data
     let options = {
         host: "osu.ppy.sh",
         path: "/api/v2/users/" + osuUsername + "/osu?key=username",
@@ -107,19 +108,46 @@ exports.dashboardPage = function(request, response) {
             let data = JSON.parse(userData);
             console.log(data);
 
-            response.render("dashboard", {
-                hasUser: true,
-                username: data.username,
-                global_rank: data.statistics.global_rank,
-                country_rank: data.statistics.country_rank,
-                pp: data.statistics.pp,
-                profile_pic_src: data.avatar_url
+            // Get osu! scores
+
+            options = {
+                host: "osu.ppy.sh",
+                path: "/api/v2/users/" + data.id + "/scores/best?mode=osu&limit=1",
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+
+            let scores_request = https.request(options, function(scoreResponse) {
+                let scoreData = "";
+
+                scoreResponse.on("data", function(chunk) {
+                    scoreData += chunk;
+                });
+
+                scoreResponse.on("end", function() {
+                    let topScores = JSON.parse(scoreData);
+                    console.log(topScores);
+
+                    response.render("dashboard", {
+                        hasUser: true,
+                        username: data.username,
+                        global_rank: data.statistics.global_rank,
+                        country_rank: data.statistics.country_rank,
+                        pp: data.statistics.pp,
+                        profile_pic_src: data.avatar_url,
+                        top_scores: topScores
+                    });
+                });
             });
+            scores_request.end();
         });
     });
 
     osu_request.end();
-
 }
 
 exports.osuToken = function(request, response) {
