@@ -5,8 +5,9 @@
         <input id="search-input" type="text" placeholder="Enter username..." name="search">
         <button id="submit-search">Submit</button>
 
-        {{#if userGiven}} 
-            <h1>User</h1>
+        {{#if hasUser}} 
+            <h1>{{username}}</h1>
+            <h2>Performance Points: {{pp}}</h2>
         {{/if}}
 
         <script src="js/dashboard.js"></script>

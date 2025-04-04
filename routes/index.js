@@ -72,11 +72,51 @@ exports.authorization = function(request, response) {
 }
 
 exports.dashboardPage = function(request, response) {
-    let osuUsername = request.body.osuUsername;
+    let osuUsername = request.query.osuUsername;
+    let token = request.query.token;
+    
+    // If no osu! username given, just render
+    if(osuUsername == null && token == null) {
+        response.render("dashboard", { 
+            hasUser: false
+        }); 
 
-    response.render("dashboard", { 
-        userGiven: osuUsername != null
-    }); 
+        return;
+    }
+
+    // Otherwise, get osu! user data and then display
+
+    let options = {
+        host: "osu.ppy.sh",
+        path: "/api/v2/users/" + osuUsername + "/osu?key=username",
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    };
+
+    let osu_request = https.request(options, function(apiResponse) {
+        let userData = "";
+
+        apiResponse.on("data", function(chunk) {
+            userData += chunk;
+        });
+        apiResponse.on("end", function() {
+            let data = JSON.parse(userData);
+            console.log(data);
+
+            response.render("dashboard", {
+                hasUser: true,
+                username: data.username,
+                pp: data.statistics.pp
+            });
+        });
+    });
+
+    osu_request.end();
+
 }
 
 exports.osuToken = function(request, response) {
@@ -137,30 +177,4 @@ exports.osuTokenExpired = function(request, response) {
 }
 
 exports.osuUser = function(request, response) {
-    let osuUsername = request.body.osuUsername;
-    let token = JSON.parse(request.body.token);
-
-    let options = {
-        host: "osu.ppy.sh",
-        path: "/api/v2/users/" + osuUsername + "/osu?key=username",
-        method: "GET",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token.access_token}`
-        }
-    };
-
-    let osu_request = https.request(options, function(apiResponse) {
-        let userData = "";
-
-        apiResponse.on("data", function(chunk) {
-            userData += chunk;
-        });
-        apiResponse.on("end", function() {
-            response.contentType("application/json").json(JSON.parse(userData));
-        });
-    });
-
-    osu_request.end();
 }
