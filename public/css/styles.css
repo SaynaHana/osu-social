@@ -16,6 +16,13 @@
     max-width: 130px;
 }
 
+.top-score {
+    display: flex;
+    flex-direction: row;
+    margin: 0px 5px;
+    align-items: center;
+}
+
 h1 {
     font-size: 18px;
 }

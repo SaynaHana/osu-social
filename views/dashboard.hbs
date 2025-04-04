@@ -23,7 +23,14 @@
                 </div>
                 <div class="top-scores">
                     {{#each top_scores}}
-                        <h2>{{this.beatmapset.title}}</h2>
+                        <div class="top-score">
+                            <div class="top-score-map-info">
+                                <h2>{{this.beatmapset.title}}</h2>
+                                <p>{{this.beatmap.version}}</p>
+                            </div>
+                            <p class="top-score-accuracy">{{this.accuracy}}%</p>
+                            <p class="top-score-pp">{{this.pp}}pp</p>
+                        </div>
                     {{/each}}
                 </div>
             </div>

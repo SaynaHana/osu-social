@@ -112,7 +112,7 @@ exports.dashboardPage = function(request, response) {
 
             options = {
                 host: "osu.ppy.sh",
-                path: "/api/v2/users/" + data.id + "/scores/best?mode=osu&limit=1",
+                path: "/api/v2/users/" + data.id + "/scores/best?mode=osu&limit=100",
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -121,6 +121,7 @@ exports.dashboardPage = function(request, response) {
                 }
             }
 
+            // Make request for top scores
             let scores_request = https.request(options, function(scoreResponse) {
                 let scoreData = "";
 
@@ -130,6 +131,13 @@ exports.dashboardPage = function(request, response) {
 
                 scoreResponse.on("end", function() {
                     let topScores = JSON.parse(scoreData);
+
+                    // Change accuracy to percentage
+                    for(let i = 0; i < topScores.length; i++) {
+                        topScores[i].accuracy *= 100;
+                        topScores[i].accuracy = Math.round((topScores[i].accuracy * 100)) / 100;
+                    }
+
                     console.log(topScores);
 
                     response.render("dashboard", {
