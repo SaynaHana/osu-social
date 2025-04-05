@@ -108,6 +108,14 @@ exports.dashboardPage = function(request, response) {
             let data = JSON.parse(userData);
             console.log(data);
 
+            if(apiResponse.statusCode !== 200) {
+                response.render("dashboard", { 
+                    hasUser: false
+                }); 
+
+                return;
+            }
+
             // Get osu! scores
 
             options = {
