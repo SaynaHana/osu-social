@@ -44,9 +44,56 @@ exports.register = function(request, response) {
     });
 }
 
-exports.authorization = function(request, response) {
+exports.login = function(request, response) {
     let username = request.body.username;
     let password = request.body.password;
+
+    let authorized = false;
+
+    db.all(`SELECT userid, password FROM users WHERE userid='${username}' AND password=${password}`, function(err, users) {
+        if(users.length > 0) {
+            authorized = true;
+        }
+
+        if(authorized == false) {
+            response.writeHead(401, {"Content-Type": "text/html"});
+            console.log("Unauthorized, send 401.");
+            response.end();
+        }
+        else {
+            response.writeHead(200, {"Content-Type": "text/html"});
+            console.log("Authorized, send 200.");
+            response.end();
+        }
+    });
+
+}
+
+exports.authorization = function(request, response, next) {
+    let auth = request.headers.authorization;
+
+    if(!auth) {
+        response.setHeader("WWW-Authenticate", "Basic realm='need to login'");
+        response.writeHead(401, {"Content-Type": "text/html"});
+        console.log("Unauthorized, send 401.");
+        response.end();
+    }
+    else {
+        console.log("Authorization Header: " + auth);
+    }
+
+    let tmp = auth.split(" ");
+    var buf = Buffer.from(tmp[1], "base64");
+
+    let plain_auth = buf.toString();
+    console.log("Decoded Authorization: " + plain_auth);
+
+    // Extract username and password
+    let credentials = plain_auth.split(":");
+    let username = credentials[0];
+    let password = credentials[1];
+    console.log("User: " + username);
+    console.log("Password: " + password);
 
     let authorized = false;
 
@@ -64,9 +111,7 @@ exports.authorization = function(request, response) {
             response.end();
         }
         else {
-            response.writeHead(200, {"Content-Type": "text/html"});
-            console.log("Authorized, send 200.");
-            response.end();
+            next();
         }
     });
 }
@@ -145,8 +190,6 @@ exports.dashboardPage = function(request, response) {
                         topScores[i].accuracy *= 100;
                         topScores[i].accuracy = Math.round((topScores[i].accuracy * 100)) / 100;
                     }
-
-                    console.log(topScores);
 
                     response.render("dashboard", {
                         hasUser: true,

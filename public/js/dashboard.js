@@ -10,7 +10,6 @@ function search() {
 }
 
 function displayOsuUser(osuUsername) {
-    let xhr = new XMLHttpRequest(); 
     let token = localStorage.getItem("osu-token");
     let accessToken = null;
 

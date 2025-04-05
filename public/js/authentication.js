@@ -12,7 +12,8 @@ function authenticate(username, password, mode) {
         xhr.open("POST", "/register");
     }
     else {
-        xhr.open("POST", "/authorization");
+        xhr.open("GET", "/dashboardPage");
+        xhr.setRequestHeader("Authorization", `Basic ${username}:${password}`);
     }
 
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -20,7 +21,9 @@ function authenticate(username, password, mode) {
     xhr.onreadystatechange = () => {
         if(xhr.readyState == 4 && xhr.status == 200) {
             saveAccountInfo(username, password);
-            window.location.href = "../dashboardPage";
+            // Try to get osu token if needed
+            checkOsuToken();
+            //goToDashboard(username, password);
         }
         else if(xhr.status == 409) {
             return alert("User already exists. Please try a different username.");
@@ -30,10 +33,17 @@ function authenticate(username, password, mode) {
         }
     }
 
-    // Try to get osu token if needed
-    checkOsuToken();
-
     xhr.send(params);
+}
+
+function goToDashboard(username, password) {
+    // Create get request to dashboard
+    let xhr = new XMLHttpRequest();
+
+    xhr.open("GET", "/dashboardPage");
+    xhr.setRequestHeader("Authorization", `Basic ${username}:${password}`);
+
+    xhr.send();
 }
 
 function checkOsuToken() {
@@ -45,6 +55,11 @@ function checkOsuToken() {
     if(tokenData != null) {
         // Check if token is expired
         let xhr = new XMLHttpRequest()
+        // Convert to base64 from: https://developer.mozilla.org/en-US/docs/Glossary/Base64
+        let params = btoa(localStorage.getItem("username") + ":" + localStorage.getItem("password"));
+
+        xhr.open("GET", `/osuTokenExpired?expiredDate=${tokenData.expiredDate}`);
+        xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("username") + ":" + localStorage.getItem("password"));
 
         xhr.onreadystatechange = () => {
             if(xhr.readyState == 4 && xhr.status == 200) {
@@ -59,7 +74,6 @@ function checkOsuToken() {
             }
         }
 
-        xhr.open("GET", `/osuTokenExpired?expiredDate=${tokenData.expiredDate}`);
         xhr.send();
     }
     else {

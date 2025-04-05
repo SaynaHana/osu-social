@@ -37,14 +37,14 @@ function headerLogger(request, response, next){
 app.use(logger("dev"));
 
 // Routes
-app.get(["/", "/loginPage"], routes.loginPage);
 app.get("/registerPage", routes.registerPage);
 app.post("/register", routes.register);
-app.get("/dashboardPage", routes.dashboardPage);
+app.post("/login", routes.login);
+app.get(["/", "/dashboardPage"], routes.authorization, routes.dashboardPage);
 app.post("/authorization", routes.authorization);
-app.get("/osuToken", routes.osuToken);
-app.get("/osuTokenExpired", routes.osuTokenExpired);
-app.post("/osuUser", routes.osuUser);
+app.get("/osuToken", routes.authorization, routes.osuToken);
+app.get("/osuTokenExpired", routes.authorization, routes.osuTokenExpired);
+app.post("/osuUser", routes.authorization, routes.osuUser);
 
 app.listen(PORT, err => {
     if(err) console.log(err)
