@@ -49,6 +49,7 @@ function checkOsuToken() {
         xhr.onreadystatechange = () => {
             if(xhr.readyState == 4 && xhr.status == 200) {
                 let data = JSON.parse(xhr.responseText); 
+                console.log("Expired: " + data.expired);
 
                 if(data.expired === true) {
                     getOsuToken();
@@ -59,7 +60,7 @@ function checkOsuToken() {
             }
         }
 
-        xhr.open("GET", `/osuTokenExpired?${tokenData.expiredDate}`);
+        xhr.open("GET", `/osuTokenExpired?expiredDate=${tokenData.expiredDate}`);
         xhr.send();
     }
     else {

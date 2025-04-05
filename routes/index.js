@@ -203,9 +203,9 @@ exports.osuToken = function(request, response) {
 // Check if osu token is expired
 exports.osuTokenExpired = function(request, response) {
     // Get expired date
-    let expiredDate = request.query.expiredDate;
+    let expiredDate = moment(request.query.expiredDate).toDate();
 
-    let now = Date.now();
+    let now = moment(Date.now()).toDate();
     let expired = false;
 
     if(expiredDate < now) {
