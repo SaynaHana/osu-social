@@ -37,10 +37,10 @@ function headerLogger(request, response, next){
 app.use(logger("dev"));
 
 // Routes
-app.get("/registerPage", routes.registerPage);
+app.get(["/", "/registerPage"], routes.registerPage);
 app.post("/register", routes.register);
 app.post("/login", routes.login);
-app.get(["/", "/dashboardPage"], routes.authorization, routes.dashboardPage);
+app.get("/dashboardPage", routes.authorization, routes.dashboardPage);
 app.post("/authorization", routes.authorization);
 app.get("/osuToken", routes.authorization, routes.osuToken);
 app.get("/osuTokenExpired", routes.authorization, routes.osuTokenExpired);
