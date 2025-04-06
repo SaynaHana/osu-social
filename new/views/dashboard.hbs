@@ -17,10 +17,11 @@
                                 <img src={{profile_pic_src}}>
                             </div>
                             <div class="profile-info">
-                                <h1>{{username}}</h1>
+                                <h1 id="osu-username">{{username}}</h1>
                                 <p>Global Rank: {{global_rank}}</p>
                                 <p>Country Rank: {{country_rank}}</p>
                                 <p>Performance Points: {{pp}}</p>
+                                <p id="id">Id: {{id}}</p>
                             </div>
                         </div>
                         <div class="top-scores">
@@ -37,6 +38,13 @@
                         <p>Send a comment to {{username}}</p>
                         <textarea id="comment-text-area" name="comment-text-area" rows="5" cols="75" placeholder="Enter comment..."></textarea>
                         <button id="submit-comment">Submit</button>
+
+                        {{#each comments}}
+                            <div class="comment">
+                                <h3>{{this.sender}} says:</h3>
+                                <p>{{this.comment}}</p>
+                            </div>
+                        {{/each}}
                     </div>
                 </div>
             </div>

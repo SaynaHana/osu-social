@@ -202,10 +202,32 @@ exports.playerProfile = function(request, response) {
         apiResponse.on("end", function() {
             if(apiResponse.statusCode == 200) {
                 let data = JSON.parse(userData);
-                console.log(data);
+                //console.log(data.username);
 
+                // Get comments, total likes from SQL database
+                db.all(`SELECT * FROM osu_users WHERE userid='${data.username}'`, function(err, users) {
+                    // If user is not in database, then add them
+                    if(users.length == 0) {
+                        db.run(`INSERT INTO osu_users VALUES ('${data.username}', '[]', 0)`, [], function(err1) {
+                            if(err1) {
+                                console.log(err1);
+                                console.log("Unable to add osu! user to database.");
+                                response.writeHead(400, {"Content-Type": "text/html"});
+                                response.end();
+                            }
+                        });
 
-                getTopScores(request, response, data);
+                        data.comments = [];
+                        data.likes = 0;
+                    }
+                    else {
+                        data.comments = JSON.parse(users[0].comments);
+                        data.likes = users[0].likes;
+                    }
+
+                    getTopScores(request, response, data);
+                });
+
             }
             else {
                 console.log("Could not get osu! user data.");
@@ -268,7 +290,49 @@ displayPlayerProfile = function(request, response, data) {
         global_rank: data.statistics.global_rank,
         country_rank: data.statistics.country_rank,
         pp: data.statistics.pp,
+        id: data.id,
         profile_pic_src: data.avatar_url,
-        top_scores: data.topScores
+        top_scores: data.topScores,
+        comments: data.comments
+    });
+}
+
+exports.sendComment = function(request, response) {
+    let osuUsername = request.body.osuUsername;
+
+    // Find username in DB 
+    db.all(`SELECT * FROM osu_users WHERE userid='${osuUsername}'`, function(err, users) {
+        if(err) {
+            console.log(err);
+            response.writeHead(400, {"Content-Type": "text/html"});
+            response.end();
+        }        
+
+        if(users.length == 0) {
+            console.log("Could not find osu! user with username.");
+            response.writeHead(404, {"Content-Type": "text/html"});
+            response.end();
+        }
+
+        let comments = JSON.parse(users[0].comments);
+
+        let comment = {
+            sender: request.username,
+            comment: request.body.comment
+        }
+
+        comments.push(comment);
+
+        db.run(`UPDATE osu_users SET comments='${JSON.stringify(comments)}' WHERE userid='${osuUsername}'`, function(err) {
+            if(err) {
+                console.log(err);
+                response.writeHead(400, {"Content-Type": "text/html"});
+                response.end();
+            }
+
+            console.log("Comment sent successfully.");
+            response.writeHead(200, {"Content-Type": "text/html"});
+            response.end();
+        });
     });
 }

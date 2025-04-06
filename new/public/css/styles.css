@@ -13,7 +13,25 @@
 }
 
 .profile-pic {
-    max-width: 130px;
     display: flex;
     align-items: center;
+}
+
+.profile-pic img {
+    max-width: 130px;
+}
+
+.comment {
+    border: solid black 1px;
+    padding: 0px 10px;
+}
+
+.comment h3 p {
+    margin: 0px 5px;
+}
+
+.comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
