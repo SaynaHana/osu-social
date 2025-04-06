@@ -8,6 +8,22 @@
         <input id="search-input" type="text" placeholder="Enter username..." name="search">
         <button id="submit-search">Submit</button>
 
+        {{#if hasUser}} 
+            <div class="profile-container">
+                <div class="top-section">
+                    <div class="profile-pic">
+                        <img src={{profile_pic_src}}>
+                    </div>
+                    <div class="profile-info">
+                        <h1>{{username}}</h1>
+                        <p>Global Rank: {{global_rank}}</p>
+                        <p>Country Rank: {{country_rank}}</p>
+                        <p>Performance Points: {{pp}}</p>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+
         <script src="js/dashboard.js"></script>
     </body>
 </html>

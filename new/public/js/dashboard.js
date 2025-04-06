@@ -1,14 +1,11 @@
 function submitSearch() {
-    // Send POST request to /playerProfile and try to render the data given  
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", "/playerProfile");
+    let osuUsername = document.getElementById("search-input").value;    
 
-    xhr.onreadystatechange = () => {
-        if(xhr.readyState == 4 && xhr.status == 200) {
-        }
-    };
+    if(osuUsername === "") {
+        return alert("Please enter a valid osu! username.");
+    }
 
-    xhr.send();
+    window.location.href = `/playerProfile?osuUsername=${osuUsername}`;
 }
 
 document.addEventListener("DOMContentLoaded", function() {

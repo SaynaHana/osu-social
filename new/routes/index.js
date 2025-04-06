@@ -135,6 +135,7 @@ exports.checkForToken = function(request, response, next) {
                             response.end();
                         }
                         else {
+                            request.osuToken = newToken;
                             next();
                         }
 
@@ -158,9 +159,71 @@ exports.checkForToken = function(request, response, next) {
 }
 
 exports.dashboard = function(request, response) {
-    response.render("dashboard", {});
+    response.render("dashboard", { hasUser: false });
 }
 
 exports.playerProfile = function(request, response) {
-    response.render("dashboard", {});
+    let token = request.osuToken;
+
+    if(token == null) {
+        console.log("Invalid token.");
+        response.writeHead(401, {"Content-Type": "text-html"});
+        response.end();
+    }
+
+    let osuUsername = request.query.osuUsername;
+
+    if(osuUsername == null) {
+        console.log("Invalid osu! username.");
+        response.writeHead(400, {"Content-Type": "text-html"});
+        response.end();
+    }
+
+    // Get osu! user data
+    let options = {
+        host: OSU_HOST,
+        path: "/api/v2/users/" + osuUsername + "/osu?key=username",
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    };
+
+    // Read user data
+    let user_request = https.request(options, function(apiResponse) {
+        let userData = "";
+
+        apiResponse.on("data", function(chunk) {
+            userData += chunk;
+        });
+
+        apiResponse.on("end", function() {
+            if(apiResponse.statusCode == 200) {
+                let data = JSON.parse(userData);
+                console.log(data);
+
+                response.render("dashboard", {
+                    hasUser: true,
+                    username: data.username,
+                    global_rank: data.statistics.global_rank,
+                    country_rank: data.statistics.country_rank,
+                    pp: data.statistics.pp,
+                    profile_pic_src: data.avatar_url
+                });
+            }
+            else {
+                console.log("Could not get osu! user data.");
+                response.writeHead(400, {"Content-Type": "text-html"});
+                response.end();
+            }
+        });
+    });
+
+    user_request.end();
+}
+
+exports.displayPlayerProfile = function(request, response) {
+
 }
