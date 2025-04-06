@@ -9,25 +9,35 @@
         <button id="submit-search">Submit</button>
 
         {{#if hasUser}} 
-            <div class="profile-container">
+            <div class="hero-container">
                 <div class="flex-horizontal">
-                    <div class="profile-pic">
-                        <img src={{profile_pic_src}}>
+                    <div class="profile-container">
+                        <div class="flex-horizontal">
+                            <div class="profile-pic">
+                                <img src={{profile_pic_src}}>
+                            </div>
+                            <div class="profile-info">
+                                <h1>{{username}}</h1>
+                                <p>Global Rank: {{global_rank}}</p>
+                                <p>Country Rank: {{country_rank}}</p>
+                                <p>Performance Points: {{pp}}</p>
+                            </div>
+                        </div>
+                        <div class="top-scores">
+                            {{#each top_scores}} 
+                                <h2>{{this.beatmapset.title}}</h2>
+                                <p>{{this.beatmap.version}}</p>
+                                <p>{{this.pp}}pp</p>
+                                <p>{{this.accuracy}}%</p>
+                            {{/each}}
+                        </div>
                     </div>
-                    <div class="profile-info">
-                        <h1>{{username}}</h1>
-                        <p>Global Rank: {{global_rank}}</p>
-                        <p>Country Rank: {{country_rank}}</p>
-                        <p>Performance Points: {{pp}}</p>
+                    <div class="comments-container">
+                        <h2>Comments</h2>
+                        <p>Send a comment to {{username}}</p>
+                        <textarea id="comment-text-area" name="comment-text-area" rows="5" cols="75" placeholder="Enter comment..."></textarea>
+                        <button id="submit-comment">Submit</button>
                     </div>
-                </div>
-                <div class="top-scores">
-                    {{#each top_scores}} 
-                        <h2>{{this.beatmapset.title}}</h2>
-                        <p>{{this.beatmap.version}}</p>
-                        <p>{{this.pp}}pp</p>
-                        <p>{{this.accuracy}}%</p>
-                    {{/each}}
                 </div>
             </div>
         {{/if}}

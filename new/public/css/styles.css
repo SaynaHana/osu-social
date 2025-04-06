@@ -1,14 +1,19 @@
-.profile-container {
-    margin: 5px;
-}
-
 .flex-horizontal {
     display: flex;
     flex-direction: row;
-    align-items: center;
     gap: 10px;
 }
 
-.profile-pic img {
+.profile-container {
+    min-width: 50%;
+}
+
+.hero-container {
+    margin: 5px;
+}
+
+.profile-pic {
     max-width: 130px;
+    display: flex;
+    align-items: center;
 }
