@@ -6,6 +6,9 @@ var logger = require("morgan");
 var app = express();
 const PORT = process.env.PORT || 3000;
 
+// Make it so we can access public folder
+app.use(express.static(path.join(__dirname, "public")));
+
 // View engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
@@ -18,6 +21,7 @@ app.use(routes.authenticate);
 app.use(logger("dev"));
 
 app.get("/dashboard", routes.dashboard);
+app.get('/playerProfile', routes.checkForToken, routes.playerProfile);
 
 app.listen(PORT, err => {
     if(err) console.log(err);

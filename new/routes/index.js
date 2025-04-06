@@ -1,10 +1,16 @@
 var url = require("url");
+var moment = require("moment");
 var sqlite3 = require("sqlite3").verbose();
+var https = require("https");
 var db = new sqlite3.Database("data/db_projectData");
 
+// osu! api credentials
+const OSU_HOST = "osu.ppy.sh";
+const OSU_CLIENT_ID = "39625";
+const OSU_CLIENT_SECRET = "qZXZ77yZxs6U7tJaqT91Xv8yW0Hywr3fUHz2eYtP";
+
 db.serialize(function() {
-    db.run("CREATE TABLE IF NOT EXISTS users (userid TEXT PRIMARY KEY, password TEXT, role TEXT)");
-    db.run("INSERT OR REPLACE INTO users VALUES ('admin', 'secret', 'admin')");
+    db.run("CREATE TABLE IF NOT EXISTS users (userid TEXT PRIMARY KEY, password TEXT, role TEXT, osu_token TEXT)");
 });
 
 exports.authenticate = function(request, response, next) {
@@ -36,15 +42,21 @@ exports.authenticate = function(request, response, next) {
         var authorized = false;
 
         // Check if user exists in database
-        db.all("SELECT userid, password FROM users", function(err, rows) {
+        db.all("SELECT userid, password, osu_token, token_expired_date FROM users", function(err, rows) {
             for(let i = 0; i < rows.length; i++) {
-                if(rows[i].userid === username && rows[i].password === password) authorized = true;
+                if(rows[i].userid === username && rows[i].password === password) {
+                    authorized = true;
+                    request.username = username;
+                    request.password = password;
+                    request.osuToken = rows[i].osu_token;
+                    request.expiredDate = rows[i].token_expired_date;
+                }
             }
 
             if(authorized == false) {
                 response.setHeader("WWW-Authenticate", "Basic realm='need to login'");
                 response.writeHead(401, {"Content-Type": "text/html"});
-                console.log("NO authorization found, send 401.");
+                console.log("No authorization found, send 401.");
                 response.end();
             }
             else {
@@ -54,6 +66,101 @@ exports.authenticate = function(request, response, next) {
     }
 }
 
+exports.checkForToken = function(request, response, next) {
+    // Checks if the user has a valid token
+    let token = request.osuToken;
+    let validToken = true;
+
+    // If token does not exist, get a new one
+    if(token == null) {
+        validToken = false;
+    }
+    // If token is expired, get a new one
+    else {
+        if(request.expiredDate == null) {
+            validToken = false;
+        }
+        else {
+            // Check if token is expired by comparing times
+            let expiredDate = moment(request.expiredDate).toDate();
+            let now = moment(Date.now()).toDate();
+
+            if(expiredDate < now) {
+                validToken = false;
+            }
+        }
+    }
+
+    if(!validToken) {
+        console.log("Token is invalid. Getting new one...");
+
+        // Get new token
+        let params = `client_id=${OSU_CLIENT_ID}&client_secret=${OSU_CLIENT_SECRET}&grant_type=client_credentials&scope=public`;
+
+        // Headers in request from: https://stackoverflow.com/questions/6158933/how-is-an-http-post-request-made-in-node-js/6158966#6158966    
+        let options = {
+            host: OSU_HOST,
+            path: "/oauth/token",
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        };
+
+        let token_request = https.request(options, function(apiResponse) {
+            let tokenData = "";
+
+            apiResponse.on("data", function(chunk) {
+                tokenData += chunk;
+            });
+
+            apiResponse.on("end", function() {
+                if(apiResponse.statusCode == 200) {
+                    let data = JSON.parse(tokenData);
+                    let newToken = data.access_token;
+                    
+                    // Get expired date
+                    // From: https://stackoverflow.com/questions/1197928/how-to-add-30-minutes-to-a-javascript-date-object
+                    let date = Date.now();
+                    date = moment(date).add(0, "m").toDate();
+                    let expiredDate = moment(date).add(720, "m").toDate();
+
+                    // Add to sql database
+                    db.run(`UPDATE users SET osu_token='${newToken}', token_expired_date='${expiredDate}' WHERE userid='${request.username}' AND password='${request.password}'`, [], function(err) {
+                        if(err) {
+                            console.log(err);
+                            console.log("Could not update database.");
+                            response.writeHead(400, {"Content-Type": "text-html"});
+                            response.end();
+                        }
+                        else {
+                            next();
+                        }
+
+                    });
+                }
+                else {
+                    console.log("Could not get osu! token.");
+                    response.writeHead(400, {"Content-Type": "text-html"});
+                    response.end();
+                }
+            });
+        });
+
+        token_request.write(params);
+        token_request.end();
+    }
+    else {
+        console.log("Token is not expired.");
+        next();
+    }
+}
+
 exports.dashboard = function(request, response) {
+    response.render("dashboard", {});
+}
+
+exports.playerProfile = function(request, response) {
     response.render("dashboard", {});
 }
