@@ -10,7 +10,7 @@
 
         {{#if hasUser}} 
             <div class="profile-container">
-                <div class="top-section">
+                <div class="flex-horizontal">
                     <div class="profile-pic">
                         <img src={{profile_pic_src}}>
                     </div>
@@ -20,6 +20,14 @@
                         <p>Country Rank: {{country_rank}}</p>
                         <p>Performance Points: {{pp}}</p>
                     </div>
+                </div>
+                <div class="top-scores">
+                    {{#each top_scores}} 
+                        <h2>{{this.beatmapset.title}}</h2>
+                        <p>{{this.beatmap.version}}</p>
+                        <p>{{this.pp}}pp</p>
+                        <p>{{this.accuracy}}%</p>
+                    {{/each}}
                 </div>
             </div>
         {{/if}}

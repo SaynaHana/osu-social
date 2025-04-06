@@ -192,7 +192,7 @@ exports.playerProfile = function(request, response) {
     };
 
     // Read user data
-    let user_request = https.request(options, function(apiResponse) {
+    let userRequest = https.request(options, function(apiResponse) {
         let userData = "";
 
         apiResponse.on("data", function(chunk) {
@@ -204,26 +204,71 @@ exports.playerProfile = function(request, response) {
                 let data = JSON.parse(userData);
                 console.log(data);
 
-                response.render("dashboard", {
-                    hasUser: true,
-                    username: data.username,
-                    global_rank: data.statistics.global_rank,
-                    country_rank: data.statistics.country_rank,
-                    pp: data.statistics.pp,
-                    profile_pic_src: data.avatar_url
-                });
+
+                getTopScores(request, response, data);
             }
             else {
                 console.log("Could not get osu! user data.");
-                response.writeHead(400, {"Content-Type": "text-html"});
+                response.writeHead(400, {"Content-Type": "text/html"});
                 response.end();
             }
         });
     });
 
-    user_request.end();
+    userRequest.end();
 }
 
-exports.displayPlayerProfile = function(request, response) {
+getTopScores = function(request, response, data) {
+    // Send GET request to osu! API to get scores
+    let options = {
+        host: OSU_HOST,
+        path: "/api/v2/users/" + data.id + "/scores/best?mode=osu&limit=5",
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${request.osuToken}`
+        }
+    };
 
+    let scoresRequest = https.request(options, function(apiResponse) {
+        let scoresData = "";
+
+        apiResponse.on("data", function(chunk) {
+            scoresData += chunk;
+        });
+
+        apiResponse.on("end", function() {
+            if(apiResponse.statusCode == 200) {
+                data.topScores = JSON.parse(scoresData);
+
+                displayPlayerProfile(request, response, data);
+            }
+            else {
+                console.log("Could not get osu! user's top plays.");
+                response.writeHead(400, {"Content-Type": "text/html"});
+                response.end();
+            }
+        });
+    });
+
+    scoresRequest.end();
+}
+
+displayPlayerProfile = function(request, response, data) {
+    // Convert accuracy to percentage
+    for(let i = 0; i < data.topScores.length; i++) {
+        let accuracy = data.topScores[i].accuracy * 100;
+        data.topScores[i].accuracy = Math.round(accuracy * 100) / 100;
+    }
+
+    response.render("dashboard", {
+        hasUser: true,
+        username: data.username,
+        global_rank: data.statistics.global_rank,
+        country_rank: data.statistics.country_rank,
+        pp: data.statistics.pp,
+        profile_pic_src: data.avatar_url,
+        top_scores: data.topScores
+    });
 }
