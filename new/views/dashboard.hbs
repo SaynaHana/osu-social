@@ -25,11 +25,17 @@
                             </div>
                         </div>
                         <div class="top-scores">
+                            <h2>Top Plays</h2>
                             {{#each top_scores}} 
-                                <h2>{{this.beatmapset.title}}</h2>
-                                <p>{{this.beatmap.version}}</p>
-                                <p>{{this.pp}}pp</p>
-                                <p>{{this.accuracy}}%</p>
+                                <div class="top-score">
+                                    <h2>{{this.beatmapset.title}}</h2>
+                                    <p>{{this.beatmap.version}}</p>
+                                    <p>{{this.pp}}pp</p>
+                                    <p>{{this.accuracy}}%</p>
+                                    <p>Id: {{this.id}}</p>
+                                    <button>{{this.likedText}}</button>
+                                    <p>{{this.likes}} likes</p>
+                                </div>
                             {{/each}}
                         </div>
                     </div>

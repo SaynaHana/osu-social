@@ -264,6 +264,49 @@ getTopScores = function(request, response, data) {
             if(apiResponse.statusCode == 200) {
                 data.topScores = JSON.parse(scoresData);
 
+                // For each of the scores, check if it is in the database
+                // If it is, then get the likes
+                // Else, add it to the database
+                for(let i = 0; i < data.topScores.length; i++) {
+                    db.all(`SELECT * FROM scores WHERE id='${data.topScores[i].id}'`, function(err, scores) {
+                        if(err) {
+                            console.log(err);
+                            response.writeHead(400, {"Content-Type": "text/html"});
+                            response.end();
+                        }
+
+                        if(scores.length != 0) {
+                            let score = scores[0]; 
+                            console.log(score);
+                            
+                            data.topScores[i].likes = score.likes;
+                            data.topScores[i].usersLiked = JSON.parse(score.users_liked);
+                            data.topScores[i].liked = false;
+
+                            // Check if liked
+                            let usersLiked = data.topScores[i].usersLiked;
+
+
+                            for(let i = 0; i < usersLiked.length; i++) {
+                                if(usersLiked[i] == request.username) {
+                                    data.topScores[i].liked = true; 
+                                    break;
+                                }
+                            }
+
+                        }
+                        else {
+                            db.run(`INSERT INTO scores VALUES('${data.topScores[i].id}', '0', '[]')`, function(err1) {
+                                if(err1) {
+                                    console.log(err1);
+                                    response.writeHead(400, {"Content-Type": "text/html"});
+                                    response.end();
+                                }
+                            });
+                        }
+                    });
+                }
+
                 displayPlayerProfile(request, response, data);
             }
             else {
@@ -282,6 +325,14 @@ displayPlayerProfile = function(request, response, data) {
     for(let i = 0; i < data.topScores.length; i++) {
         let accuracy = data.topScores[i].accuracy * 100;
         data.topScores[i].accuracy = Math.round(accuracy * 100) / 100;
+
+        // If user liked the score, then change liked to "Unlike"
+        if(data.topScores[i].liked == true) {
+            data.topScores[i].likedText = "Unlike";
+        }
+        else {
+            data.topScores[i].likedText = "Like";
+        }
     }
 
     response.render("dashboard", {

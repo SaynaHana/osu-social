@@ -21,9 +21,15 @@
     max-width: 130px;
 }
 
+.top-score {
+    border: solid black 1px;
+    padding: 0px 15px;
+    margin: 5px 0px;
+}
+
 .comment {
     border: solid black 1px;
-    padding: 0px 10px;
+    padding: 0px 15px;
 }
 
 .comment h3 p {
