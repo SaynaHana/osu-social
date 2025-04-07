@@ -286,14 +286,9 @@ getTopScores = function(request, response, data) {
                             // Check if liked
                             let usersLiked = data.topScores[i].usersLiked;
 
-                            for(let i = 0; i < usersLiked.length; i++) {
-                                if(usersLiked[i] == request.username) {
-                                    data.topScores[i].liked = true; 
-                                    break;
-                                }
+                            if(usersLiked.includes(request.username)) {
+                                data.topScores[i].liked = true;
                             }
-
-
                         }
                         else {
                             db.run(`INSERT INTO scores VALUES('${data.topScores[i].id}', '0', '[]')`, function(err1) {
@@ -329,13 +324,7 @@ displayPlayerProfile = function(request, response, data) {
         data.topScores[i].accuracy = Math.round(accuracy * 100) / 100;
 
         // If user liked the score, then change liked to "Unlike"
-        console.log("Liked: " + data.topScores[i].liked);
-        if(data.topScores[i].liked == true) {
-            data.topScores[i].likedText = "Liked";
-        }
-        else {
-            data.topScores[i].likedText = "Like";
-        }
+        data.topScores[i].likedText = "Like";
     }
 
     response.render("dashboard", {
