@@ -10,13 +10,18 @@
     gap: 10px;
 }
 
+.border {
+    border: solid black 1px;
+    padding: 0px 15px;
+}
+
 .register-container {
     display: flex;
     flex-direction: column;
     width: 25%;
 }
 
-.register-container p {
+.register-container a {
     text-align: center;
 }
 

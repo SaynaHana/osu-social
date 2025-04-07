@@ -67,12 +67,13 @@ exports.authenticate = function(request, response, next) {
         var authorized = false;
 
         // Check if user exists in database
-        db.all("SELECT userid, password, osu_token, token_expired_date FROM users", function(err, rows) {
+        db.all("SELECT userid, password, role, osu_token, token_expired_date FROM users", function(err, rows) {
             for(let i = 0; i < rows.length; i++) {
                 if(rows[i].userid === username && rows[i].password === password) {
                     authorized = true;
                     request.username = username;
                     request.password = password;
+                    request.role = rows[i].role;
                     request.osuToken = rows[i].osu_token;
                     request.expiredDate = rows[i].token_expired_date;
                 }
@@ -481,4 +482,50 @@ exports.sendLike = function(request, response) {
         }
 
     });
+}
+
+exports.leaderboard = function(request, response) {
+    // Get all osu! users from database in sorted order by likes
+    db.all(`SELECT * FROM osu_users ORDER BY likes DESC`, function(err, users) {
+        if(err) {
+            console.log(err);
+            response.writeHead(400, {"Content-Type": "text/html"});
+            response.end();
+            return;
+        }
+
+        let players = [];
+
+        for(let i = 0; i < users.length; i++) {
+            if(users[i].likes > 0) {
+                players.push(users[i]);
+            }
+        }
+
+        response.render("leaderboard", {
+            players: players
+        });
+    });
+}
+
+exports.users = function(request, response) {
+    // Check if has admin privileges
+    // If not, show error
+    if(request.role === "admin") {
+        db.all(`SELECT * FROM users`, function(err, users) {
+            if(err) {
+                console.log(err);
+                response.writeHead(400, {"Content-Type": "text/html"});
+                response.end();
+                return;
+            }
+
+            response.render("users", {
+                users: users
+            });
+        });
+    }
+    else {
+        response.render("admin-error", {});
+    }
 }
