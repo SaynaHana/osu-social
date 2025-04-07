@@ -4,6 +4,12 @@
         <link rel="stylesheet" href="/css/styles.css">
     </head>
     <body>
+        <div class="flex-horizontal">
+            <div class="header">
+                <p>Welcome {{account_username}}!</p>  
+                <a href="../register">Sign out</a>
+            </div>
+        </div>
         <label for="search">Search User:</label>
         <input id="search-input" type="text" placeholder="Enter username..." name="search">
         <button id="submit-search">Submit</button>

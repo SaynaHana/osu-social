@@ -28,7 +28,9 @@ function submitComment() {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onreadystatechange = () => {
-        window.location.reload();
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            window.location.reload();
+        }
     };
 
     xhr.send(`osuUsername=${username}&comment=${comment}`);
@@ -47,7 +49,9 @@ function submitLike(id) {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onreadystatechange = () => {
-        window.location.reload();
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            window.location.reload();
+        }
     };
 
     xhr.send(`osuUsername=${username}&scoreId=${id}`);

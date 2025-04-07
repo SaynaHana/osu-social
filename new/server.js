@@ -20,6 +20,8 @@ app.locals.pretty = true;
 
 var routes = require("./routes/index");
 
+app.get(["/", "/register"], routes.register);
+app.post("/registerUser", routes.registerUser);
 app.use(routes.authenticate);
 app.use(logger("dev"));
 

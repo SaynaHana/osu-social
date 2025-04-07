@@ -13,6 +13,31 @@ db.serialize(function() {
     db.run("CREATE TABLE IF NOT EXISTS users (userid TEXT PRIMARY KEY, password TEXT, role TEXT, osu_token TEXT)");
 });
 
+// Shows register page
+exports.register = function(request, response) {
+    response.render("register", {});
+}
+
+// Adds user to database
+exports.registerUser = function(request, response, next) {
+    let username = request.body.username;
+    let password = request.body.password;
+
+    // Try to add to database
+    db.run(`INSERT INTO users VALUES ('${username}', '${password}', 'guest', '', '')`, function(err) {
+        if(err) {
+            // User already exists
+            console.log("User with username " + username + " already exists");
+            response.writeHead(405, {"Content-Type": "text/html"});
+            response.end();
+            return;
+        }
+        
+        response.writeHead(200, {"Content-Type": "text/html"})
+        response.end();
+    });
+}
+
 exports.authenticate = function(request, response, next) {
     var auth = request.headers.authorization;    
 
@@ -72,7 +97,7 @@ exports.checkForToken = function(request, response, next) {
     let validToken = true;
 
     // If token does not exist, get a new one
-    if(token == null) {
+    if(token == null || token === "") {
         validToken = false;
     }
     // If token is expired, get a new one
@@ -159,7 +184,7 @@ exports.checkForToken = function(request, response, next) {
 }
 
 exports.dashboard = function(request, response) {
-    response.render("dashboard", { hasUser: false });
+    response.render("dashboard", { hasUser: false, account_username: request.username });
 }
 
 exports.playerProfile = function(request, response) {
@@ -329,6 +354,7 @@ displayPlayerProfile = function(request, response, data) {
 
     response.render("dashboard", {
         hasUser: true,
+        account_username: request.username,
         username: data.username,
         global_rank: data.statistics.global_rank,
         country_rank: data.statistics.country_rank,
