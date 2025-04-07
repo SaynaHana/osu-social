@@ -208,7 +208,7 @@ exports.playerProfile = function(request, response) {
                 db.all(`SELECT * FROM osu_users WHERE userid='${data.username}'`, function(err, users) {
                     // If user is not in database, then add them
                     if(users.length == 0) {
-                        db.run(`INSERT INTO osu_users VALUES ('${data.username}', '[]', 0)`, [], function(err1) {
+                        db.run(`INSERT INTO osu_users VALUES ('${data.username}', '[]', 0, 0)`, [], function(err1) {
                             if(err1) {
                                 console.log(err1);
                                 console.log("Unable to add osu! user to database.");
@@ -275,17 +275,16 @@ getTopScores = function(request, response, data) {
                             response.end();
                         }
 
+                        data.topScores[i].liked = false;
+
                         if(scores.length != 0) {
                             let score = scores[0]; 
-                            console.log(score);
                             
                             data.topScores[i].likes = score.likes;
                             data.topScores[i].usersLiked = JSON.parse(score.users_liked);
-                            data.topScores[i].liked = false;
 
                             // Check if liked
                             let usersLiked = data.topScores[i].usersLiked;
-
 
                             for(let i = 0; i < usersLiked.length; i++) {
                                 if(usersLiked[i] == request.username) {
@@ -293,6 +292,7 @@ getTopScores = function(request, response, data) {
                                     break;
                                 }
                             }
+
 
                         }
                         else {
@@ -304,10 +304,12 @@ getTopScores = function(request, response, data) {
                                 }
                             });
                         }
+
+                        if(i == data.topScores.length - 1) {
+                            displayPlayerProfile(request, response, data);
+                        }
                     });
                 }
-
-                displayPlayerProfile(request, response, data);
             }
             else {
                 console.log("Could not get osu! user's top plays.");
@@ -327,8 +329,9 @@ displayPlayerProfile = function(request, response, data) {
         data.topScores[i].accuracy = Math.round(accuracy * 100) / 100;
 
         // If user liked the score, then change liked to "Unlike"
+        console.log("Liked: " + data.topScores[i].liked);
         if(data.topScores[i].liked == true) {
-            data.topScores[i].likedText = "Unlike";
+            data.topScores[i].likedText = "Liked";
         }
         else {
             data.topScores[i].likedText = "Like";
@@ -342,6 +345,7 @@ displayPlayerProfile = function(request, response, data) {
         country_rank: data.statistics.country_rank,
         pp: data.statistics.pp,
         id: data.id,
+        likes: data.likes,
         profile_pic_src: data.avatar_url,
         top_scores: data.topScores,
         comments: data.comments
@@ -385,5 +389,81 @@ exports.sendComment = function(request, response) {
             response.writeHead(200, {"Content-Type": "text/html"});
             response.end();
         });
+    });
+}
+
+exports.sendLike = function(request, response) {
+    // Get osu! username and score id
+    let osuUsername = request.body.osuUsername;
+    let scoreId = request.body.scoreId;
+
+    if(osuUsername == null || scoreId == null) {
+        console.log("Could not find osu! username or score ID.");
+        response.writeHead(400, {"Content-Type": "text/html"});
+        response.end();
+    }
+
+    // Find score and increment likes
+    db.all(`SELECT * FROM scores WHERE id='${scoreId}'`, function(err, scores) {
+        if(scores.length == 0) {
+            console.log("Could not find score.");
+            response.writeHead(404, {"Content-Type": "text/html"});
+            response.end();
+        }
+
+        if(err) {
+            console.log(err);
+            response.writeHead(400, {"Content-Type": "text/html"});
+            response.end();
+        }
+
+        // Increment likes
+        let score = scores[0];
+        let usersLiked = JSON.parse(score.users_liked);
+
+        if(usersLiked.includes(request.username)) {
+            response.writeHead(401, {"Content-Type": "text/html"});
+            response.end();
+        }
+        else {
+            usersLiked.push(request.username);
+
+            db.run(`UPDATE scores SET likes='${score.likes + 1}', users_liked='${JSON.stringify(usersLiked)}' WHERE id=${scoreId}`, function(err1) {
+                if(err1) {
+                    console.log(err1);
+                    response.writeHead(400, {"Content-Type": "text/html"});
+                    response.end();
+                }
+
+                // Update osu! user's total likes
+                db.all(`SELECT * FROM osu_users WHERE userid='${osuUsername}'`, function(err2, users) {
+                    if(users.length == 0) {
+                        console.log("Could not update osu! user.");
+                        response.writeHead(400, {"Content-Type": "text/html"});
+                        response.end();
+                    }
+
+                    if(err2) {
+                        console.log(err2);
+                        response.writeHead(400, {"Content-Type": "text/html"});
+                        response.end();
+                    }
+
+                    let user = users[0];
+                    db.run(`UPDATE osu_users SET likes='${user.likes + 1}' WHERE userid='${osuUsername}'`, function(err3) {
+                        if(err3) {
+                            console.log(err3);
+                            response.writeHead(400, {"Content-Type": "text/html"});
+                            response.end();
+                        }
+
+                        console.log("Successfully added like.");
+                        response.writeHead(200, {"Content-Type": "text/html"});
+                        response.end();
+                    });
+                });
+            });
+        }
+
     });
 }

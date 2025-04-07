@@ -26,6 +26,7 @@ app.use(logger("dev"));
 app.get("/dashboard", routes.dashboard);
 app.get("/playerProfile", routes.checkForToken, routes.playerProfile);
 app.post("/sendComment", routes.sendComment);
+app.post("/sendLike", routes.sendLike);
 
 app.listen(PORT, err => {
     if(err) console.log(err);

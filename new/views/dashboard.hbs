@@ -21,6 +21,7 @@
                                 <p>Global Rank: {{global_rank}}</p>
                                 <p>Country Rank: {{country_rank}}</p>
                                 <p>Performance Points: {{pp}}</p>
+                                <p>Total Likes: {{likes}}</p>
                                 <p id="id">Id: {{id}}</p>
                             </div>
                         </div>
@@ -32,8 +33,8 @@
                                     <p>{{this.beatmap.version}}</p>
                                     <p>{{this.pp}}pp</p>
                                     <p>{{this.accuracy}}%</p>
-                                    <p>Id: {{this.id}}</p>
-                                    <button>{{this.likedText}}</button>
+                                    <p class="score-id">Id: {{this.id}}</p>
+                                    <button class="like-button">{{this.likedText}}</button>
                                     <p>{{this.likes}} likes</p>
                                 </div>
                             {{/each}}

@@ -34,7 +34,39 @@ function submitComment() {
     xhr.send(`osuUsername=${username}&comment=${comment}`);
 }
 
+function submitLike(id) {
+
+    // Get osu! username
+
+    let username = document.getElementById("osu-username").textContent;
+
+    // Send POST request to send like
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/sendLike");
+
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = () => {
+        window.location.reload();
+    };
+
+    xhr.send(`osuUsername=${username}&scoreId=${id}`);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("submit-search").addEventListener("click", submitSearch);   
     document.getElementById("submit-comment").addEventListener("click", submitComment);
+
+    let likeButtons = document.getElementsByClassName("like-button");
+
+    for(let i = 0; i < likeButtons.length; i++) {
+        likeButtons[i].addEventListener("click", function()  {
+            let idElement = likeButtons[i].parentElement.getElementsByClassName("score-id")[0];
+            let id = idElement.innerText;
+
+            // Parse id
+            id = id.split(" ")[1];
+            submitLike(id);
+        });
+    }
 });
