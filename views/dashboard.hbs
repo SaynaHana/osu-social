@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+    <body>
+        <div class="flex-horizontal">
+            <div class="header">
+                <p>Welcome {{account_username}}!</p>  
+                <a href="../register">Create new account</a>
+                <a href="../leaderboard">Leaderboard</a>
+                <a href="../users">Users</a>
+            </div>
+        </div>
+        <label for="search">Search User:</label>
+        <input id="search-input" type="text" placeholder="Enter username..." name="search">
+        <button id="submit-search">Submit</button>
+
+        {{#if hasUser}} 
+            <div class="hero-container">
+                <div class="flex-horizontal">
+                    <div class="profile-container">
+                        <div class="flex-horizontal">
+                            <div class="profile-pic">
+                                <img src={{profile_pic_src}}>
+                            </div>
+                            <div class="profile-info">
+                                <h1 id="osu-username">{{username}}</h1>
+                                <p>Global Rank: {{global_rank}}</p>
+                                <p>Country Rank: {{country_rank}}</p>
+                                <p>Performance Points: {{pp}}</p>
+                                <p>Total Likes: {{likes}}</p>
+                                <p id="id">Id: {{id}}</p>
+                            </div>
+                        </div>
+                        <div class="top-scores">
+                            <h2>Top Plays</h2>
+                            {{#each top_scores}} 
+                                <div class="top-score">
+                                    <h2>{{this.beatmapset.title}}</h2>
+                                    <p>{{this.beatmap.version}}</p>
+                                    <p>{{this.pp}}pp</p>
+                                    <p>{{this.accuracy}}%</p>
+                                    <p class="score-id">Id: {{this.id}}</p>
+                                    <button class="like-button">{{this.likedText}}</button>
+                                    <p>{{this.likes}} likes</p>
+                                </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    <div class="comments-container">
+                        <h2>Comments</h2>
+                        <p>Send a comment to {{username}}</p>
+                        <textarea id="comment-text-area" name="comment-text-area" rows="5" cols="75" placeholder="Enter comment..."></textarea>
+                        <button id="submit-comment">Submit</button>
+
+                        {{#each comments}}
+                            <div class="comment">
+                                <h3>{{this.sender}} says:</h3>
+                                <p>{{this.comment}}</p>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+
+        <script src="js/dashboard.js"></script>
+    </body>
+</html>

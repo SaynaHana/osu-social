@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+    <body>
+        <a href="../dashboard">Back to dashboard</a>
+        {{#each users}}
+            <div class="border">
+                <p>Username: {{this.userid}} Password: {{this.password}} Role: {{this.role}}</p>
+            </div>
+        {{/each}}
+    </body>
+</html>
