@@ -1,4 +1,4 @@
-This is a web application I made for a web development course. It allows users to get profile data from the osu! public API and submit likes and comments on osu! players' profile pages.
+This is an Express.js web application I made for a web development course. It allows users to get profile data from the osu! public API and submit likes and comments on osu! players' profile pages.
 
 Install Instructions:
 npm install
